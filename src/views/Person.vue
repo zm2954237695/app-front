@@ -10,7 +10,7 @@
       <i v-else class="el-icon-plus avatar-uploader-icon"></i>
     </el-upload>
     <el-form-item label="用户名">
-      <el-input v-model="form.username" autocomplete="off"></el-input>
+      <el-input v-model="form.username" autocomplete="off" disabled></el-input>
     </el-form-item>
     <el-form-item label="昵称">
       <el-input v-model="form.nickname" autocomplete="off"></el-input>
@@ -21,7 +21,7 @@
     <el-form-item label="电话">
       <el-input v-model="form.phone" autocomplete="off"></el-input>
     </el-form-item>
-    <el-form-item label="地址">
+    <el-form-item label="地址" >
       <el-input v-model="form.address" autocomplete="off"></el-input>
     </el-form-item>
     <el-form-item>
@@ -37,25 +37,30 @@ export default {
   data(){
     return {
       form:{},
-      user:localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {}
+      user: localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {}
     }
   },
+
   created() {
-     this.getUser().then( res=>{
-        this.form = res
+     this.getUser().then(res=>{
+       this.form = res
      })
   },
+
+
   methods:{
-    async getUser(){
-      return (await this.request.get('/user/username/'+this.user.username)).data
+    async getUser() {
+      return (await this.request.get("/user/username/" + this.user.username)).data
     },
     save(){
       this.request.post("/user",this.form).then(res => {
         if(res.code === '200'){
           this.$message.success("保存成功")
+          //触发父集更新user的方法
+          this.$emit('refreshUser')
           this.getUser().then( res => {
-            res.token = JSON.parse(localStorage.getItem("user")).token
-            localStorage.setItem("user",JSON.stringify(res))
+             res.token=JSON.parse(localStorage.getItem("user")).token
+             localStorage.setItem("user",JSON.stringify(res))
           })
         } else {
           this.$message.error("保存失败")
